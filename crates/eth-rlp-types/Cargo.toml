@@ -1,0 +1,11 @@
+[package]
+name = "eth-rlp-types"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ethereum-types = "0.15"
+sha3 = "0.10"
+serde = { version = "1.0", features = ["derive"] }
+eyre = "0.6"
+hex = "0.4"
