@@ -4,10 +4,7 @@ mod london;
 mod paris;
 mod shapella;
 
-use crate::constants::{
-    DENCUN_START, GENESIS_END, LONDON_END, LONDON_START, PARIS_END, PARIS_START, SHAPELLA_END,
-    SHAPELLA_START,
-};
+use crate::constants::*;
 use eth_rlp_types::{BlockHeader as VerifiableBlockHeader, BlockHeaderTrait};
 
 // Re-export each era's verification function to make them accessible at the module level.
@@ -49,50 +46,118 @@ type DecoderFn = fn(&[u8]) -> Result<VerifiableBlockHeader, eyre::Report>;
 /// # Notes
 ///
 /// - If the block number falls outside the recognized eras, this function will return `None`.
-pub fn determine_era(block_number: u64) -> Option<fn(String, VerifiableBlockHeader) -> bool> {
-    if (LONDON_START..=LONDON_END).contains(&block_number) {
-        Some(verify_hash_london)
-    } else if (PARIS_START..=PARIS_END).contains(&block_number) {
-        Some(verify_hash_paris)
-    } else if (SHAPELLA_START..=SHAPELLA_END).contains(&block_number) {
-        Some(verify_hash_shapella)
-    } else if block_number >= DENCUN_START {
-        Some(verify_hash_dencun)
-    } else if block_number <= GENESIS_END {
-        Some(verify_hash_genesis)
-    } else {
-        None
+pub fn determine_era(
+    block_number: u64,
+    chain_id: u64,
+) -> Option<fn(String, VerifiableBlockHeader) -> bool> {
+    match chain_id {
+        crate::CHAIN_ID_MAINNET => {
+            if (LONDON_START..=LONDON_END).contains(&block_number) {
+                Some(verify_hash_london)
+            } else if (PARIS_START..=PARIS_END).contains(&block_number) {
+                Some(verify_hash_paris)
+            } else if (SHAPELLA_START..=SHAPELLA_END).contains(&block_number) {
+                Some(verify_hash_shapella)
+            } else if block_number >= DENCUN_START {
+                Some(verify_hash_dencun)
+            } else if block_number <= GENESIS_END {
+                Some(verify_hash_genesis)
+            } else {
+                None
+            }
+        }
+        crate::CHAIN_ID_SEPOLIA => {
+            if block_number <= LONDON_END_SEPOLIA {
+                Some(verify_hash_london)
+            } else if (SHAPELLA_START_SEPOLIA..=SHAPELLA_END_SEPOLIA).contains(&block_number) {
+                Some(verify_hash_shapella)
+            } else if block_number >= DENCUN_START_SEPOLIA {
+                Some(verify_hash_dencun)
+            } else {
+                None
+            }
+        }
+        _ => None,
     }
 }
 
-pub fn determine_era_encoder(block_number: u64) -> Option<fn(VerifiableBlockHeader) -> Vec<u8>> {
-    if (LONDON_START..=LONDON_END).contains(&block_number) {
-        Some(|header| london::BlockHeaderLondon::from_db_header(header).rlp_encode())
-    } else if (PARIS_START..=PARIS_END).contains(&block_number) {
-        Some(|header| paris::BlockHeaderParis::from_db_header(header).rlp_encode())
-    } else if (SHAPELLA_START..=SHAPELLA_END).contains(&block_number) {
-        Some(|header| shapella::BlockHeaderShapella::from_db_header(header).rlp_encode())
-    } else if block_number >= DENCUN_START {
-        Some(|header| dencun::BlockHeaderDencun::from_db_header(header).rlp_encode())
-    } else if block_number <= GENESIS_END {
-        Some(|header| genesis::BlockHeaderGenesis::from_db_header(header).rlp_encode())
-    } else {
-        None
+pub fn determine_era_encoder(
+    block_number: u64,
+    chain_id: u64,
+) -> Option<fn(VerifiableBlockHeader) -> Vec<u8>> {
+    match chain_id {
+        crate::CHAIN_ID_MAINNET => {
+            if (LONDON_START..=LONDON_END).contains(&block_number) {
+                Some(|header| london::BlockHeaderLondon::from_db_header(header).rlp_encode())
+            } else if (PARIS_START..=PARIS_END).contains(&block_number) {
+                Some(|header| paris::BlockHeaderParis::from_db_header(header).rlp_encode())
+            } else if (SHAPELLA_START..=SHAPELLA_END).contains(&block_number) {
+                Some(|header| shapella::BlockHeaderShapella::from_db_header(header).rlp_encode())
+            } else if block_number >= DENCUN_START {
+                Some(|header| dencun::BlockHeaderDencun::from_db_header(header).rlp_encode())
+            } else if block_number <= GENESIS_END {
+                Some(|header| genesis::BlockHeaderGenesis::from_db_header(header).rlp_encode())
+            } else {
+                None
+            }
+        }
+        crate::CHAIN_ID_SEPOLIA => {
+            if block_number <= LONDON_END_SEPOLIA {
+                Some(|header| london::BlockHeaderLondon::from_db_header(header).rlp_encode())
+            } else if (SHAPELLA_START_SEPOLIA..=SHAPELLA_END_SEPOLIA).contains(&block_number) {
+                Some(|header| shapella::BlockHeaderShapella::from_db_header(header).rlp_encode())
+            } else if block_number >= DENCUN_START_SEPOLIA {
+                Some(|header| dencun::BlockHeaderDencun::from_db_header(header).rlp_encode())
+            } else {
+                None
+            }
+        }
+        _ => None,
     }
 }
 
-pub fn determine_era_decoder(block_number: u64) -> Option<DecoderFn> {
-    if block_number <= GENESIS_END {
-        Some(|data| genesis::BlockHeaderGenesis::rlp_decode(data).map(|h| h.into_verifiable()))
-    } else if (LONDON_START..=LONDON_END).contains(&block_number) {
-        Some(|data| london::BlockHeaderLondon::rlp_decode(data).map(|h| h.into_verifiable()))
-    } else if (PARIS_START..=PARIS_END).contains(&block_number) {
-        Some(|data| paris::BlockHeaderParis::rlp_decode(data).map(|h| h.into_verifiable()))
-    } else if (SHAPELLA_START..=SHAPELLA_END).contains(&block_number) {
-        Some(|data| shapella::BlockHeaderShapella::rlp_decode(data).map(|h| h.into_verifiable()))
-    } else if block_number >= DENCUN_START {
-        Some(|data| dencun::BlockHeaderDencun::rlp_decode(data).map(|h| h.into_verifiable()))
-    } else {
-        None
+pub fn determine_era_decoder(block_number: u64, chain_id: u64) -> Option<DecoderFn> {
+    match chain_id {
+        crate::CHAIN_ID_MAINNET => {
+            if block_number <= GENESIS_END {
+                Some(|data| {
+                    genesis::BlockHeaderGenesis::rlp_decode(data).map(|h| h.into_verifiable())
+                })
+            } else if (LONDON_START..=LONDON_END).contains(&block_number) {
+                Some(|data| {
+                    london::BlockHeaderLondon::rlp_decode(data).map(|h| h.into_verifiable())
+                })
+            } else if (PARIS_START..=PARIS_END).contains(&block_number) {
+                Some(|data| paris::BlockHeaderParis::rlp_decode(data).map(|h| h.into_verifiable()))
+            } else if (SHAPELLA_START..=SHAPELLA_END).contains(&block_number) {
+                Some(|data| {
+                    shapella::BlockHeaderShapella::rlp_decode(data).map(|h| h.into_verifiable())
+                })
+            } else if block_number >= DENCUN_START {
+                Some(|data| {
+                    dencun::BlockHeaderDencun::rlp_decode(data).map(|h| h.into_verifiable())
+                })
+            } else {
+                None
+            }
+        }
+        crate::CHAIN_ID_SEPOLIA => {
+            if block_number <= LONDON_END_SEPOLIA {
+                Some(|data| {
+                    london::BlockHeaderLondon::rlp_decode(data).map(|h| h.into_verifiable())
+                })
+            } else if (SHAPELLA_START_SEPOLIA..=SHAPELLA_END_SEPOLIA).contains(&block_number) {
+                Some(|data| {
+                    shapella::BlockHeaderShapella::rlp_decode(data).map(|h| h.into_verifiable())
+                })
+            } else if block_number >= DENCUN_START_SEPOLIA {
+                Some(|data| {
+                    dencun::BlockHeaderDencun::rlp_decode(data).map(|h| h.into_verifiable())
+                })
+            } else {
+                None
+            }
+        }
+        _ => None,
     }
 }

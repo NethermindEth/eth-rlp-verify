@@ -17,7 +17,7 @@ pub const GENESIS_END: u64 = 12_964_999;
 /// # Value
 /// - `12,965,000` is the block number where the London upgrade starts.
 pub const LONDON_START: u64 = 12_965_000;
-
+pub const LONDON_START_SEPOLIA: u64 = 0;
 /// The last block number of the London to Paris era.
 ///
 /// This constant marks the final block of the London era and the transition to the Paris era, which corresponds to
@@ -26,7 +26,7 @@ pub const LONDON_START: u64 = 12_965_000;
 /// # Value
 /// - `15,537,393` is the block number marking the end of the London era, right before the Paris upgrade.
 pub const LONDON_END: u64 = 15_537_393;
-
+pub const LONDON_END_SEPOLIA: u64 = 2_990_907;
 /// The first block number of the Paris to Shanghai era.
 ///
 /// The Paris to Shanghai era begins with the Paris upgrade, also known as "The Merge," at block `15,537,394`.
@@ -55,6 +55,7 @@ pub const PARIS_END: u64 = 17_034_869;
 /// # Value
 /// - `17,034,870` is the block number where the Shapella upgrade starts.
 pub const SHAPELLA_START: u64 = 17_034_870;
+pub const SHAPELLA_START_SEPOLIA: u64 = 2_990_908;
 
 /// The last block number of the Shapella era.
 ///
@@ -64,6 +65,7 @@ pub const SHAPELLA_START: u64 = 17_034_870;
 /// # Value
 /// - `19,426,586` is the block number marking the end of the Shapella era.
 pub const SHAPELLA_END: u64 = 19_426_586;
+pub const SHAPELLA_END_SEPOLIA: u64 = 5_187_022;
 
 /// The first block number of the Dencun era.
 ///
@@ -74,3 +76,4 @@ pub const SHAPELLA_END: u64 = 19_426_586;
 /// # Value
 /// - `19,426,587` is the block number where the Dencun upgrade begins.
 pub const DENCUN_START: u64 = 19_426_587;
+pub const DENCUN_START_SEPOLIA: u64 = 5_187_023;

@@ -6,13 +6,16 @@ pub mod test_helpers;
 pub mod traits;
 use eth_rlp_types::BlockHeader as VerifiableBlockHeader;
 
-pub fn are_blocks_and_chain_valid(block_headers: &[VerifiableBlockHeader]) -> bool {
+pub const CHAIN_ID_MAINNET: u64 = 1;
+pub const CHAIN_ID_SEPOLIA: u64 = 11155111;
+
+pub fn are_blocks_and_chain_valid(block_headers: &[VerifiableBlockHeader], chain_id: u64) -> bool {
     for (i, block) in block_headers.iter().enumerate() {
         let block_hash = block.block_hash.clone();
         let parent_hash = block.parent_hash.clone().unwrap_or_default();
         let block_number = block.number;
 
-        let is_valid = verify_block(block_number as u64, block.clone(), &block_hash);
+        let is_valid = verify_block(block_number as u64, block.clone(), &block_hash, chain_id);
 
         if !is_valid {
             return false;
@@ -50,10 +53,11 @@ pub fn verify_block(
     block_number: u64,
     block_header: VerifiableBlockHeader,
     block_hash: &str,
+    chain_id: u64,
 ) -> bool {
-    match eras::determine_era(block_number) {
+    match eras::determine_era(block_number, chain_id) {
         Some(verify_fn) => verify_fn(block_hash.to_string(), block_header),
-        None => false, // If the block number is out of the supported range
+        None => false,
     }
 }
 
@@ -68,8 +72,9 @@ pub fn verify_block(
 pub fn encode_block_header(
     block_number: u64,
     block_header: VerifiableBlockHeader,
+    chain_id: u64,
 ) -> Option<Vec<u8>> {
-    eras::determine_era_encoder(block_number).map(|encoder| encoder(block_header))
+    eras::determine_era_encoder(block_number, chain_id).map(|encoder| encoder(block_header))
 }
 
 /// Decodes an RLP-encoded block header based on the block number.
@@ -86,13 +91,17 @@ pub fn encode_block_header(
 /// # Returns
 ///
 /// An `Option<VerifiableBlockHeader>` containing the decoded block header if successful.
-pub fn decode_block_header(block_number: u64, encoded: &[u8]) -> Option<VerifiableBlockHeader> {
-    eras::determine_era_decoder(block_number).and_then(|decoder| decoder(encoded).ok())
+pub fn decode_block_header(
+    block_number: u64,
+    encoded: &[u8],
+    chain_id: u64,
+) -> Option<VerifiableBlockHeader> {
+    eras::determine_era_decoder(block_number, chain_id).and_then(|decoder| decoder(encoded).ok())
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{decode_block_header, encode_block_header};
+    use super::*;
     use crate::test_helpers::create_test_block_header_london; // Adjust import as needed
 
     #[test]
@@ -105,8 +114,8 @@ mod tests {
         println!("Original Header: {:#?}", original_header);
 
         // Step 1: Encode the block header
-        let encoded =
-            encode_block_header(block_number, original_header.clone()).expect("Encoding failed");
+        let encoded = encode_block_header(block_number, original_header.clone(), CHAIN_ID_MAINNET)
+            .expect("Encoding failed");
 
         println!("Encoded Bytes: {:?}", encoded);
 
@@ -115,7 +124,8 @@ mod tests {
         println!("Encoded Hex: {}", encoded_hex);
 
         // Step 2: Decode the block header
-        let decoded_header = decode_block_header(block_number, &encoded).expect("Decoding failed");
+        let decoded_header =
+            decode_block_header(block_number, &encoded, CHAIN_ID_MAINNET).expect("Decoding failed");
 
         println!("Decoded Header: {:#?}", decoded_header);
 
