@@ -55,7 +55,7 @@ pub const PARIS_END: u64 = 17_034_869;
 /// # Value
 /// - `17,034,870` is the block number where the Shapella upgrade starts.
 pub const SHAPELLA_START: u64 = 17_034_870;
-pub const SHAPELLA_START_SEPOLIA: u64 = 2_990_908;
+pub const SHAPELLA_START_SEPOLIA: u64 = 2_990_958;
 
 /// The last block number of the Shapella era.
 ///
@@ -65,7 +65,7 @@ pub const SHAPELLA_START_SEPOLIA: u64 = 2_990_908;
 /// # Value
 /// - `19,426,586` is the block number marking the end of the Shapella era.
 pub const SHAPELLA_END: u64 = 19_426_586;
-pub const SHAPELLA_END_SEPOLIA: u64 = 5_187_022;
+pub const SHAPELLA_END_SEPOLIA: u64 = 5_187_061;
 
 /// The first block number of the Dencun era.
 ///
@@ -76,4 +76,4 @@ pub const SHAPELLA_END_SEPOLIA: u64 = 5_187_022;
 /// # Value
 /// - `19,426,587` is the block number where the Dencun upgrade begins.
 pub const DENCUN_START: u64 = 19_426_587;
-pub const DENCUN_START_SEPOLIA: u64 = 5_187_023;
+pub const DENCUN_START_SEPOLIA: u64 = 5_187_062;

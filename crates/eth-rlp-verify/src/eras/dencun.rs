@@ -241,10 +241,8 @@ impl BlockHeaderTrait for BlockHeaderDencun {
 /// A boolean indicating whether the computed block hash matches the provided block hash.
 pub fn verify_hash_dencun(block_hash: String, db_header: VerifiableBlockHeader) -> bool {
     let header = BlockHeaderDencun::from_db_header(db_header);
-
     // Compute the block hash
     let computed_block_hash = header.compute_hash();
-
     // Check if the computed hash matches the given block hash
     computed_block_hash == H256::from_str(&block_hash).unwrap()
 }

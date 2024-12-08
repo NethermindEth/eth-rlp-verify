@@ -120,3 +120,95 @@ pub fn create_test_block_header_london() -> BlockHeader {
         parent_beacon_block_root: None,
     }
 }
+
+pub fn create_test_block_header_cancun_sepolia() -> BlockHeader {
+    BlockHeader {
+        block_hash: "0x3919e733febe493f7c84bcc03629dada9c1995ab45a92503747a52feef24ac31".to_string(),
+        number: 5187062,
+        gas_limit: 30000000,
+        gas_used: 11462046,
+        nonce: "0x0000000000000000".to_string(),
+        transaction_root: Some(
+            "0x0088f926e6f6c4473e0e459037644419dd02838d56169c6096f4cd29edb2685a".to_string(),
+        ),
+        receipts_root: Some(
+            "0xe30ec9875fbd9b55a34e5e3928d132a50b399f2259ea43f58976872d99256fff".to_string(),
+        ),
+        state_root: Some(
+            "0x9e404c0b23a883cd8f4e3885f008d6cf541daae9d49c3aaeee908d680d3dbc3f".to_string(),
+        ),
+        base_fee_per_gas: Some("0x100a133fc".to_string()),
+        parent_hash: Some(
+            "0xcf55efa9b2fb5c657a713e8bb7c68e30a94de080620e693abc10670ae03a6553".to_string(),
+        ),
+        miner: Some("0x9b7e335088762ad8061c04d08c37902abc8acb87".to_string()),
+        logs_bloom: Some("0x8020960e9c3141c0615930221311011084234026d470a0424a91a01804e00110600681108802149b82208800090488a28a80018604a69312538812122170810212080002908792206020300a0800248184001a058080562438020141d44470004a4828092649465480c040e114002906040905c088000460300080171208c000021204088800650d26011100190152c8010144057882d5141113c881844018410e08120040a48c0e404123000014804e17e000100806c51434e72c321690200145a210030e0a8048445804880c1790201214135418400005a20484802000240d84d2872ce249209081080001e8940004040250906a6d81438076220400201189".to_string()),
+        difficulty: Some("0x0".to_string()),
+        totaldifficulty: Some("0x3c656d23029ab0".to_string()),
+        sha3_uncles: Some(
+            "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347".to_string(),
+        ),
+        timestamp: Some("0x65b7d5c8".to_string()),
+        extra_data: Some("0xd883010d0b846765746888676f312e32312e36856c696e7578".to_string()),
+        mix_hash: Some(
+            "0x6fc3d4b7ef0bbb1543928db7aa9aca670b77801973a86d3c08e2aae4cc156e84".to_string(),
+        ),
+        ommers_hash: Some(
+            "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347".to_string(),
+        ),
+        withdrawals_root: Some(
+            "0x7fc341eee4ab6fdd82595aa3c6b8e720a8b75396b26343e8287f8c35bd9c5bc6".to_string(),
+        ),
+        blob_gas_used: Some("0xc0000".to_string()),
+        excess_blob_gas: Some("0x2a0000".to_string()),
+        parent_beacon_block_root: Some(
+            "0x6e975ee5654a4312c7ea1428cae73b45bff6c26f7899d6bbadcd3d6c3b583bbd".to_string(),
+        ),
+    }
+}
+
+pub fn create_test_block_header_cancun() -> BlockHeader {
+    BlockHeader {
+        block_hash: "0xc30bad27d3bcaece0a3676bbf0cfd3f2711d8e9bf82b03d6c8eaf7d38cc26218".to_string(),
+        number: 21360407,
+        gas_limit: 30000000,
+        gas_used: 23136748,
+        nonce: "0x0000000000000000".to_string(),
+        transaction_root: Some(
+            "0x7e8cb150b22634aa93698d7474295d1e5cd20058f5dd87937d614e343c522ce9".to_string(),
+        ),
+        receipts_root: Some(
+            "0x920933bdc0a76aa6e20f9055c5121fec90b3026407850fe0e3be9e501aa4aaa3".to_string(),
+        ),
+        state_root: Some(
+            "0xd9f5fd68ad4eb866f72c2c0cc92522fcb2f8217de90f571b12af014595a712d1".to_string(),
+        ),
+        base_fee_per_gas: Some("0x221181aba".to_string()),
+        parent_hash: Some(
+            "0xd961036e50def39e5596c000f882ff8c01480238d7b5cef205dcb9eb2564f1e9".to_string(),
+        ),
+        miner: Some("0x4838b106fce9647bdf1e7877bf73ce8b0bad5f97".to_string()),
+        logs_bloom: Some("0x56bfda6a6d3bbafbf2e9f1fcfdf412f5fb4aba67b8537dec59ff736ae7f28912e457cfe793f818b24e71bff8df3e9dfc6e63be6dcf786ddedee3f7deecfb3b65fa35d5bc4bbdeba87cf77b7fd2716affcc2b87bfdf6fddf26d7e1f79ffebee16da077f073f7e89ef85fc9ffe7848b9d7f2bffcec8f153efaba71ddfecaebdebdc9abaf7f1fdfd5fbb0fbab771b7a7f3ea6d17f7fefe60eeff8aadc67e7d8ffababffb56ffabd7cde6bda7bf6c1fc5de57657cfa3b9f94eaf437c4faa3688e26f711c6a3ef55d7b626034f9cf75f8fbe76be8f776bd7679b64fb7ed6ee9ebe4f6503bee7b1d98d60e674476b228fd1b7ed5eeffcfd3b9bfc45c6bb168d6fe7e87".to_string()),
+        difficulty: Some("0x0".to_string()),
+        totaldifficulty: Some("0xc70d815d562d3cfa955".to_string()),
+        sha3_uncles: Some(
+            "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347".to_string(),
+        ),
+        timestamp: Some("0x675e4067".to_string()),
+        extra_data: Some("0x546974616e2028746974616e6275696c6465722e78797a29".to_string()),
+        mix_hash: Some(
+            "0xba0c445804efa055afaf3e3c70982df08f17b0209cb7cbfb5b9ac769ea14bc36".to_string(),
+        ),
+        ommers_hash: Some(
+            "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347".to_string(),
+        ),
+        withdrawals_root: Some(
+            "0x4a45d936f39861fe6ce5285973f70b5d836989cc178e86f6f613b1741e790cec".to_string(),
+        ),
+        blob_gas_used: Some("0x80000".to_string()),
+        excess_blob_gas: Some("0x3740000".to_string()),
+        parent_beacon_block_root: Some(
+            "0x49c85e7f2d121cc6f8f55e1265785690e63e0769285c2cfc47112a1406631e47".to_string(),
+        ),
+    }
+}

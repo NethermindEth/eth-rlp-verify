@@ -1,0 +1,7 @@
+[package]
+name = "eth-rlp-examples"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+eth-rlp-verify = { path = "../crates/eth-rlp-verify" } 

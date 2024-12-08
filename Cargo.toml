@@ -1,5 +1,9 @@
 [workspace]
-members = ["crates/eth-rlp-types", "crates/eth-rlp-verify"]
+members = [
+    "crates/eth-rlp-types",
+    "crates/eth-rlp-verify",
+    "eth-rlp-examples"
+]
 
 resolver = "2"
 
@@ -13,3 +17,5 @@ repository = "https://github.com/ametel01/eth-rlp-verify"
 keywords = ["ethereum",  "rlp", "keccak256", "blockchain", "verification"]
 categories = ["cryptography", "encoding", "data-structures"]
 readme = "README.md"   
+
+
