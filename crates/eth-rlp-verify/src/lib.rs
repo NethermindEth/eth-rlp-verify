@@ -34,6 +34,21 @@ pub fn are_blocks_and_chain_valid(block_headers: &[VerifiableBlockHeader], chain
     true
 }
 
+pub fn are_blocks_valid(block_headers: &[VerifiableBlockHeader], chain_id: u64) -> bool {
+    for block in block_headers.iter() {
+        let block_hash = block.block_hash.clone();
+        let block_number = block.number;
+
+        let is_valid = verify_block(block_number as u64, block.clone(), &block_hash, chain_id);
+
+        if !is_valid {
+            return false;
+        }
+    }
+
+    true
+}
+
 /// Verifies the validity of an Ethereum block header based on the block number and expected hash.
 ///
 /// This function determines the appropriate Ethereum era based on the block number, retrieves the corresponding
