@@ -35,7 +35,7 @@ use sha3::{Digest, Keccak256};
 /// - `blob_gas_used`: The amount of blob gas used, specific to blob transactions (optional).
 /// - `excess_blob_gas`: The excess blob gas present in the block (optional).
 /// - `parent_beacon_block_root`: The root of the parent beacon block, used in Ethereum's proof-of-stake chain (optional).
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Default, Debug, Serialize, Deserialize, PartialEq)]
 pub struct BlockHeader {
     pub block_hash: String,               // character(66) NOT NULL
     pub number: i64,                      // bigint NOT NULL
