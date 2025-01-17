@@ -1,7 +1,7 @@
 use ethereum_types::H256;
 use eyre::Result;
 use serde::{Deserialize, Serialize};
-use sha3::{Digest, Keccak256};
+use tiny_keccak::{Hasher, Keccak};
 
 /// Represents an Ethereum block header with various properties like block hash, gas limits, and more.
 ///
@@ -104,8 +104,11 @@ pub trait BlockHeaderTrait {
     /// An `H256` hash, representing the 32-byte Keccak256 hash of the block header.
     fn compute_hash(&self) -> H256 {
         let rlp_encoded = self.rlp_encode();
-        let hash = Keccak256::digest(rlp_encoded);
-        H256::from_slice(&hash)
+        let mut hasher = Keccak::v256();
+        let mut output = [0u8; 32];
+        hasher.update(&rlp_encoded);
+        hasher.finalize(&mut output);
+        H256::from_slice(&output)
     }
 
     /// Converts a hexadecimal string to a fixed-size byte array.
