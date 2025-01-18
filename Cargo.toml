@@ -1,9 +1,5 @@
 [workspace]
-members = [
-    "crates/eth-rlp-types",
-    "crates/eth-rlp-verify",
-    "eth-rlp-examples"
-]
+members = ["crates/eth-rlp-types", "crates/eth-rlp-verify", "eth-rlp-examples"]
 
 resolver = "2"
 
@@ -14,8 +10,9 @@ edition = "2021"
 description = "Ethereum block header verification across multiple eras using RLP encoding and Keccak256 hashing."
 license = "MIT"
 repository = "https://github.com/ametel01/eth-rlp-verify"
-keywords = ["ethereum",  "rlp", "keccak256", "blockchain", "verification"]
+keywords = ["ethereum", "rlp", "keccak256", "blockchain", "verification"]
 categories = ["cryptography", "encoding", "data-structures"]
-readme = "README.md"   
+readme = "README.md"
 
-
+[patch.crates-io]
+tiny-keccak = { git = "https://github.com/risc0/tiny-keccak", rev = "7ff2b8465891d1cbb55a69e553e05d369ce41d72" }
