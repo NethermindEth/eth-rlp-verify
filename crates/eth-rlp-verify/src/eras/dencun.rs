@@ -96,17 +96,13 @@ impl BlockHeaderDencun {
             nonce,
             base_fee_per_gas: U256::from_str(&db_header.base_fee_per_gas.unwrap_or_default())
                 .unwrap(),
-            withdrawals_root: H256::from_str(&db_header.withdrawals_root.unwrap_or(
-                "".to_string(),
-            ))
-            .unwrap_or_default(),
+            withdrawals_root: H256::from_str(&db_header.withdrawals_root.unwrap_or_default())
+                .unwrap_or_default(),
             parent_beacon_block_root: H256::from_str(
-                &db_header.parent_beacon_block_root.unwrap_or(
-                    "".to_string(),
-                ),
+                &db_header.parent_beacon_block_root.unwrap_or_default(),
             )
             .unwrap_or_default(),
-            blob_gas_used: U256::from_str(&db_header.blob_gas_used.unwrap_or("0x0".to_string()))
+            blob_gas_used: U256::from_str(&db_header.blob_gas_used.unwrap_or_default())
                 .unwrap_or_default(),
             excess_blob_gas: U256::from_str(
                 &db_header.excess_blob_gas.unwrap_or("0x0".to_string()),
