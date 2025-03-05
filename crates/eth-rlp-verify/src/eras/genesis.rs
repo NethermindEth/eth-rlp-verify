@@ -216,7 +216,7 @@ pub fn verify_hash_genesis(block_hash: String, db_header: VerifiableBlockHeader)
 
     if !matches {
         error!(
-            "Hash verification failed for London block: expected {}, computed {}, block number {}",
+            "Hash verification failed for Genesis block: expected {}, computed {}, block number {}",
             expected_hash, computed_block_hash, block_number
         );
     }
