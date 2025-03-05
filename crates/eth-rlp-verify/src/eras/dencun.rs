@@ -243,7 +243,7 @@ impl BlockHeaderTrait for BlockHeaderDencun {
 pub fn verify_hash_dencun(block_hash: String, db_header: VerifiableBlockHeader) -> bool {
     // Store the block number before moving db_header
     let block_number = db_header.number;
-    let header = BlockHeaderDencun::from_db_header(db_header);
+    let header = BlockHeaderDencun::from_db_header(db_header.clone());
 
     // Compute the block hash
     let computed_block_hash = header.compute_hash();
@@ -253,6 +253,7 @@ pub fn verify_hash_dencun(block_hash: String, db_header: VerifiableBlockHeader) 
     let matches = computed_block_hash == expected_hash;
 
     if !matches {
+        println!("Header: {:?}", db_header);
         error!(
             "Hash verification failed for Dencun block: expected {}, computed {}, block number {}",
             expected_hash, computed_block_hash, block_number
