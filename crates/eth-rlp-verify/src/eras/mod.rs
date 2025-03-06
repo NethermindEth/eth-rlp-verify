@@ -2,6 +2,7 @@ mod dencun;
 mod genesis;
 mod london;
 mod paris;
+pub mod pectra;
 mod shapella;
 
 use crate::constants::*;
@@ -12,6 +13,7 @@ pub use dencun::verify_hash_dencun;
 pub use genesis::verify_hash_genesis;
 pub use london::verify_hash_london;
 pub use paris::verify_hash_paris;
+pub use pectra::verify_hash_pectra;
 pub use shapella::verify_hash_shapella;
 
 type DecoderFn = fn(&[u8]) -> Result<VerifiableBlockHeader, eyre::Report>;
@@ -71,8 +73,10 @@ pub fn determine_era(
                 Some(verify_hash_london)
             } else if (SHAPELLA_START_SEPOLIA..=SHAPELLA_END_SEPOLIA).contains(&block_number) {
                 Some(verify_hash_shapella)
-            } else if block_number >= DENCUN_START_SEPOLIA {
+            } else if (DENCUN_START_SEPOLIA..=PECTRA_START_SEPOLIA - 1).contains(&block_number) {
                 Some(verify_hash_dencun)
+            } else if block_number >= PECTRA_START_SEPOLIA {
+                Some(verify_hash_pectra)
             } else {
                 None
             }
@@ -106,8 +110,10 @@ pub fn determine_era_encoder(
                 Some(|header| london::BlockHeaderLondon::from_db_header(header).rlp_encode())
             } else if (SHAPELLA_START_SEPOLIA..=SHAPELLA_END_SEPOLIA).contains(&block_number) {
                 Some(|header| shapella::BlockHeaderShapella::from_db_header(header).rlp_encode())
-            } else if block_number >= DENCUN_START_SEPOLIA {
+            } else if (DENCUN_START_SEPOLIA..=PECTRA_START_SEPOLIA - 1).contains(&block_number) {
                 Some(|header| dencun::BlockHeaderDencun::from_db_header(header).rlp_encode())
+            } else if block_number >= PECTRA_START_SEPOLIA {
+                Some(|header| pectra::BlockHeaderPectra::from_db_header(header).rlp_encode())
             } else {
                 None
             }
@@ -150,9 +156,13 @@ pub fn determine_era_decoder(block_number: u64, chain_id: u64) -> Option<Decoder
                 Some(|data| {
                     shapella::BlockHeaderShapella::rlp_decode(data).map(|h| h.into_verifiable())
                 })
-            } else if block_number >= DENCUN_START_SEPOLIA {
+            } else if (DENCUN_START_SEPOLIA..=PECTRA_START_SEPOLIA - 1).contains(&block_number) {
                 Some(|data| {
                     dencun::BlockHeaderDencun::rlp_decode(data).map(|h| h.into_verifiable())
+                })
+            } else if block_number >= PECTRA_START_SEPOLIA {
+                Some(|data| {
+                    pectra::BlockHeaderPectra::rlp_decode(data).map(|h| h.into_verifiable())
                 })
             } else {
                 None

@@ -3,6 +3,7 @@ use ethereum_types::{H160, H256, U256};
 use eyre::Result;
 use rlp::{Rlp, RlpStream};
 use std::str::FromStr;
+use tracing::error;
 
 /// Represents a Shapella Ethereum block header.
 ///
@@ -126,6 +127,7 @@ impl BlockHeaderShapella {
             blob_gas_used: None,
             excess_blob_gas: None,
             parent_beacon_block_root: None,
+            request_hash: None,
             sha3_uncles: None, // Not applicable for Shapella.
         }
     }
@@ -216,13 +218,25 @@ impl BlockHeaderTrait for BlockHeaderShapella {
 ///
 /// A boolean indicating whether the computed block hash matches the provided `block_hash`.
 pub fn verify_hash_shapella(block_hash: String, db_header: VerifiableBlockHeader) -> bool {
+    // Store the block number before moving db_header
+    let block_number = db_header.number;
     let header = BlockHeaderShapella::from_db_header(db_header);
 
     // Compute the block hash
     let computed_block_hash = header.compute_hash();
+    let expected_hash = H256::from_str(&block_hash).unwrap();
 
     // Check if the computed hash matches the given block hash
-    computed_block_hash == H256::from_str(&block_hash).unwrap()
+    let matches = computed_block_hash == expected_hash;
+
+    if !matches {
+        error!(
+            "Hash verification failed for Shapella block: expected {}, computed {}, block number {}",
+            expected_hash, computed_block_hash, block_number
+        );
+    }
+
+    matches
 }
 
 #[cfg(test)]
