@@ -85,4 +85,4 @@ pub const DENCUN_START_SEPOLIA: u64 = 5_187_062;
 /// Ethereum after Dencun, with additional updates to the proof-of-stake consensus mechanism.
 ///
 // pub const PECTRA_START: u64 = 20_000_000;
-pub const PECTRA_START_SEPOLIA: u64 = 7_118_848;
+pub const PECTRA_START_SEPOLIA: u64 = 7_836_331;
