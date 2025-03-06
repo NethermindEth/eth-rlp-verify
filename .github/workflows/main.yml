@@ -52,7 +52,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
+          name: test-results-${{ matrix.rust }}
           path: target/debug/deps/*.d
 
       - name: Cache cargo dependencies
