@@ -127,6 +127,7 @@ impl BlockHeaderShapella {
             blob_gas_used: None,
             excess_blob_gas: None,
             parent_beacon_block_root: None,
+            request_hash: None,
             sha3_uncles: None, // Not applicable for Shapella.
         }
     }

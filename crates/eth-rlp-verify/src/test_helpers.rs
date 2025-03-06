@@ -1,5 +1,53 @@
 use eth_rlp_types::BlockHeader;
 
+pub fn create_test_block_header_pectra() -> BlockHeader {
+    BlockHeader {
+        block_hash: "0xbfa14ad39de89b0de89a0d9e78efebae792eae93ee46414ed98ee790ce8ed8b3"
+            .to_string(),
+        number: 7839744,
+        gas_limit: 36000000,
+        gas_used: 17786126,
+        nonce: "0x0000000000000000".to_string(),
+        transaction_root: Some(
+            "0x0278307f8545a019516ec439e73404f952436abbdf21d69720a613fef8938d5f".to_string(),
+        ),
+        receipts_root: Some(
+            "0xc7bbdde3e099ede140e4364e3205a16dc68bdd5531af1596789537bbd2ff1041".to_string(),
+        ),
+        state_root: Some(
+            "0x724617b7999d13469c068ced397d3d37a1432a8db7f156ed81d8f78c0a61a7f2".to_string(),
+        ),
+        base_fee_per_gas: Some("0x120c4011".to_string()),
+        parent_hash: Some(
+            "0x53df8defa12fa604f56a0b490e45f8eaebb12c3a9aed12bc52d405600e606338".to_string(),
+        ),
+        miner: Some("0x3826539cbd8d68dcf119e80b994557b4278cec9f".to_string()),
+        logs_bloom: Some("0x0291928e4009a0159203220927940094062800a00c093a669298e00dc5bf42022a50500200334a06000029401634803691d407868254f8847c00d08d4c6604842c62588e4b106309407022cad848de348041474480540286130a080291b202110f100c409204120804a022800220084183500d004168061146246012215836041aee02124e300d3060ed400b99052084a0c0a18b886802082ca0509c4482001c028a788efd0480a9d27a105940000c5900cc8601a2031380855453c46f79128388548f0224603490610a80310087430a08946c84e00d00304409910211a071210550352d0c082800c5361f8628b9a6c3c2b275304c70834200da43181a486021".to_string()),
+        difficulty: Some("0x0".to_string()),
+        totaldifficulty: Some("0xd8fb2...".to_string()),
+        sha3_uncles: Some(
+            "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347".to_string(),
+        ),
+        timestamp: Some("0x67c8a89c".to_string()),
+        extra_data: Some("0x".to_string()),
+        mix_hash: Some(
+            "0x31d5334ad1f9e04153891a4697863a1c9e80f37c66d1d421923c07184c45b4d5".to_string(),
+        ),
+        ommers_hash: Some(
+            "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347".to_string(),
+        ),
+        withdrawals_root: Some(
+            "0x707609a48eb417ad00247824863dcae7437a4ae780719e77a1d6788f05c1a3b8".to_string(),
+        ),
+        blob_gas_used: Some("0xe0000".to_string()),
+        excess_blob_gas: Some("0x60000".to_string()),
+        parent_beacon_block_root: Some(
+            "0x4f5861bbeae03efc716a3b9cfaf4473aca4048e489a9b77102edb2117c4b8217".to_string(),
+        ),
+        request_hash: Some("0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855".to_string()),
+    }
+}
+
 pub fn create_test_block_header_shapella() -> BlockHeader {
     BlockHeader {
         block_hash: "0xb49fa930183f0fa8ca46244e946a635637b90c374d845e9c68dd7fd66cb6e0a1"
@@ -44,6 +92,7 @@ pub fn create_test_block_header_shapella() -> BlockHeader {
         parent_beacon_block_root: Some(
             "0x2b5b8c2d329148bc5d724cac0a7abc557f93471c24ea027b119ecedb937c0045".to_string(),
         ),
+        request_hash: None,
     }
 }
 
@@ -90,6 +139,7 @@ pub fn create_test_block_header_paris() -> BlockHeader {
         blob_gas_used: None,
         excess_blob_gas: None,
         parent_beacon_block_root: None,
+        request_hash: None,
     }
 }
 
@@ -118,6 +168,7 @@ pub fn create_test_block_header_london() -> BlockHeader {
         blob_gas_used: None,
         excess_blob_gas: None,
         parent_beacon_block_root: None,
+        request_hash: None,
     }
 }
 
@@ -164,6 +215,7 @@ pub fn create_test_block_header_cancun_sepolia() -> BlockHeader {
         parent_beacon_block_root: Some(
             "0x6e975ee5654a4312c7ea1428cae73b45bff6c26f7899d6bbadcd3d6c3b583bbd".to_string(),
         ),
+        request_hash: None,
     }
 }
 
@@ -210,5 +262,6 @@ pub fn create_test_block_header_cancun() -> BlockHeader {
         parent_beacon_block_root: Some(
             "0x49c85e7f2d121cc6f8f55e1265785690e63e0769285c2cfc47112a1406631e47".to_string(),
         ),
+        request_hash: None,
     }
 }

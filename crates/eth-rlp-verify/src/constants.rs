@@ -77,3 +77,12 @@ pub const SHAPELLA_END_SEPOLIA: u64 = 5_187_061;
 /// - `19,426,587` is the block number where the Dencun upgrade begins.
 pub const DENCUN_START: u64 = 19_426_587;
 pub const DENCUN_START_SEPOLIA: u64 = 5_187_062;
+
+/// The first block number of the Pectra era.
+///
+/// The Pectra era begins at block `20,000,000` with the Pectra upgrade, which introduces key improvements to
+/// Ethereum's scalability, gas fee adjustments, and other protocol changes. This era continues the evolution of
+/// Ethereum after Dencun, with additional updates to the proof-of-stake consensus mechanism.
+///
+// pub const PECTRA_START: u64 = 20_000_000;
+pub const PECTRA_START_SEPOLIA: u64 = 7_118_848;

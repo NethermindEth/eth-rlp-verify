@@ -120,6 +120,7 @@ impl BlockHeaderParis {
             excess_blob_gas: None,
             parent_beacon_block_root: None,
             sha3_uncles: None,
+            request_hash: None,
         }
     }
 }
