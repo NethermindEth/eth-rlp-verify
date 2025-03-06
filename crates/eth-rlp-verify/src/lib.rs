@@ -5,6 +5,7 @@ pub mod eras;
 pub mod test_helpers;
 pub mod traits;
 use eth_rlp_types::BlockHeader as VerifiableBlockHeader;
+use tracing::error;
 
 pub const CHAIN_ID_MAINNET: u64 = 1;
 pub const CHAIN_ID_SEPOLIA: u64 = 11155111;
@@ -26,6 +27,10 @@ pub fn are_blocks_and_chain_valid(block_headers: &[VerifiableBlockHeader], chain
             let previous_block_hash = previous_block.block_hash.clone();
 
             if parent_hash != previous_block_hash {
+                error!(
+                    "Chain validation failed: parent hash mismatch at block {}: expected {}, got {}",
+                    block_number, previous_block_hash, parent_hash
+                );
                 return false;
             }
         }

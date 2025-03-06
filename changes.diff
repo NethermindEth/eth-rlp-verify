@@ -1,0 +1,254 @@
+diff --git a/crates/eth-rlp-types/src/lib.rs b/crates/eth-rlp-types/src/lib.rs
+index e394476..8e17121 100644
+--- a/crates/eth-rlp-types/src/lib.rs
++++ b/crates/eth-rlp-types/src/lib.rs
+@@ -60,6 +60,7 @@ pub struct BlockHeader {
+     pub blob_gas_used: Option<String>,    // character varying(78)
+     pub excess_blob_gas: Option<String>,  // character varying(78)
+     pub parent_beacon_block_root: Option<String>, // character varying(66)
++    pub request_hash: Option<String>,     // character varying(66)
+ }
+ 
+ /// A trait that defines common behaviors for Ethereum block headers, including RLP encoding and hash computation.
+diff --git a/crates/eth-rlp-verify/src/constants.rs b/crates/eth-rlp-verify/src/constants.rs
+index d7eacdf..e812c6d 100644
+--- a/crates/eth-rlp-verify/src/constants.rs
++++ b/crates/eth-rlp-verify/src/constants.rs
+@@ -77,3 +77,12 @@ pub const SHAPELLA_END_SEPOLIA: u64 = 5_187_061;
+ /// - `19,426,587` is the block number where the Dencun upgrade begins.
+ pub const DENCUN_START: u64 = 19_426_587;
+ pub const DENCUN_START_SEPOLIA: u64 = 5_187_062;
++
++/// The first block number of the Pectra era.
++///
++/// The Pectra era begins at block `20,000,000` with the Pectra upgrade, which introduces key improvements to
++/// Ethereum's scalability, gas fee adjustments, and other protocol changes. This era continues the evolution of
++/// Ethereum after Dencun, with additional updates to the proof-of-stake consensus mechanism.
++///
++// pub const PECTRA_START: u64 = 20_000_000;
++pub const PECTRA_START_SEPOLIA: u64 = 7_118_848;
+diff --git a/crates/eth-rlp-verify/src/eras/dencun.rs b/crates/eth-rlp-verify/src/eras/dencun.rs
+index d9369e3..e3722f2 100644
+--- a/crates/eth-rlp-verify/src/eras/dencun.rs
++++ b/crates/eth-rlp-verify/src/eras/dencun.rs
+@@ -141,6 +141,7 @@ impl BlockHeaderDencun {
+             blob_gas_used: Some(self.blob_gas_used.to_string()),
+             excess_blob_gas: Some(self.excess_blob_gas.to_string()),
+             sha3_uncles: None, // Not applicable for Dencun.
++            request_hash: None,
+         }
+     }
+ }
+@@ -253,7 +254,6 @@ pub fn verify_hash_dencun(block_hash: String, db_header: VerifiableBlockHeader)
+     let matches = computed_block_hash == expected_hash;
+ 
+     if !matches {
+-        println!("Header: {:?}", db_header);
+         error!(
+             "Hash verification failed for Dencun block: expected {}, computed {}, block number {}",
+             expected_hash, computed_block_hash, block_number
+diff --git a/crates/eth-rlp-verify/src/eras/genesis.rs b/crates/eth-rlp-verify/src/eras/genesis.rs
+index 09710e9..9f683ea 100644
+--- a/crates/eth-rlp-verify/src/eras/genesis.rs
++++ b/crates/eth-rlp-verify/src/eras/genesis.rs
+@@ -113,6 +113,7 @@ impl BlockHeaderGenesis {
+             excess_blob_gas: None,
+             parent_beacon_block_root: None,
+             sha3_uncles: None,
++            request_hash: None,
+         }
+     }
+ }
+diff --git a/crates/eth-rlp-verify/src/eras/london.rs b/crates/eth-rlp-verify/src/eras/london.rs
+index 1bbfb1d..3e66be8 100644
+--- a/crates/eth-rlp-verify/src/eras/london.rs
++++ b/crates/eth-rlp-verify/src/eras/london.rs
+@@ -121,6 +121,7 @@ impl BlockHeaderLondon {
+             excess_blob_gas: None,
+             parent_beacon_block_root: None,
+             sha3_uncles: None,
++            request_hash: None,
+         }
+     }
+ }
+diff --git a/crates/eth-rlp-verify/src/eras/mod.rs b/crates/eth-rlp-verify/src/eras/mod.rs
+index 9f84790..9596b38 100644
+--- a/crates/eth-rlp-verify/src/eras/mod.rs
++++ b/crates/eth-rlp-verify/src/eras/mod.rs
+@@ -2,6 +2,7 @@ mod dencun;
+ mod genesis;
+ mod london;
+ mod paris;
++pub mod pectra;
+ mod shapella;
+ 
+ use crate::constants::*;
+@@ -12,6 +13,7 @@ pub use dencun::verify_hash_dencun;
+ pub use genesis::verify_hash_genesis;
+ pub use london::verify_hash_london;
+ pub use paris::verify_hash_paris;
++pub use pectra::verify_hash_pectra;
+ pub use shapella::verify_hash_shapella;
+ 
+ type DecoderFn = fn(&[u8]) -> Result<VerifiableBlockHeader, eyre::Report>;
+@@ -71,8 +73,10 @@ pub fn determine_era(
+                 Some(verify_hash_london)
+             } else if (SHAPELLA_START_SEPOLIA..=SHAPELLA_END_SEPOLIA).contains(&block_number) {
+                 Some(verify_hash_shapella)
+-            } else if block_number >= DENCUN_START_SEPOLIA {
++            } else if (DENCUN_START_SEPOLIA..=PECTRA_START_SEPOLIA - 1).contains(&block_number) {
+                 Some(verify_hash_dencun)
++            } else if block_number >= PECTRA_START_SEPOLIA {
++                Some(verify_hash_pectra)
+             } else {
+                 None
+             }
+@@ -106,8 +110,10 @@ pub fn determine_era_encoder(
+                 Some(|header| london::BlockHeaderLondon::from_db_header(header).rlp_encode())
+             } else if (SHAPELLA_START_SEPOLIA..=SHAPELLA_END_SEPOLIA).contains(&block_number) {
+                 Some(|header| shapella::BlockHeaderShapella::from_db_header(header).rlp_encode())
+-            } else if block_number >= DENCUN_START_SEPOLIA {
++            } else if (DENCUN_START_SEPOLIA..=PECTRA_START_SEPOLIA - 1).contains(&block_number) {
+                 Some(|header| dencun::BlockHeaderDencun::from_db_header(header).rlp_encode())
++            } else if block_number >= PECTRA_START_SEPOLIA {
++                Some(|header| pectra::BlockHeaderPectra::from_db_header(header).rlp_encode())
+             } else {
+                 None
+             }
+@@ -150,10 +156,14 @@ pub fn determine_era_decoder(block_number: u64, chain_id: u64) -> Option<Decoder
+                 Some(|data| {
+                     shapella::BlockHeaderShapella::rlp_decode(data).map(|h| h.into_verifiable())
+                 })
+-            } else if block_number >= DENCUN_START_SEPOLIA {
++            } else if (DENCUN_START_SEPOLIA..=PECTRA_START_SEPOLIA - 1).contains(&block_number) {
+                 Some(|data| {
+                     dencun::BlockHeaderDencun::rlp_decode(data).map(|h| h.into_verifiable())
+                 })
++            } else if block_number >= PECTRA_START_SEPOLIA {
++                Some(|data| {
++                    pectra::BlockHeaderPectra::rlp_decode(data).map(|h| h.into_verifiable())
++                })
+             } else {
+                 None
+             }
+diff --git a/crates/eth-rlp-verify/src/eras/paris.rs b/crates/eth-rlp-verify/src/eras/paris.rs
+index 5117ecf..004c0d1 100644
+--- a/crates/eth-rlp-verify/src/eras/paris.rs
++++ b/crates/eth-rlp-verify/src/eras/paris.rs
+@@ -120,6 +120,7 @@ impl BlockHeaderParis {
+             excess_blob_gas: None,
+             parent_beacon_block_root: None,
+             sha3_uncles: None,
++            request_hash: None,
+         }
+     }
+ }
+diff --git a/crates/eth-rlp-verify/src/eras/shapella.rs b/crates/eth-rlp-verify/src/eras/shapella.rs
+index b23f35c..089991b 100644
+--- a/crates/eth-rlp-verify/src/eras/shapella.rs
++++ b/crates/eth-rlp-verify/src/eras/shapella.rs
+@@ -127,6 +127,7 @@ impl BlockHeaderShapella {
+             blob_gas_used: None,
+             excess_blob_gas: None,
+             parent_beacon_block_root: None,
++            request_hash: None,
+             sha3_uncles: None, // Not applicable for Shapella.
+         }
+     }
+diff --git a/crates/eth-rlp-verify/src/test_helpers.rs b/crates/eth-rlp-verify/src/test_helpers.rs
+index d7a4b92..4ff1be3 100644
+--- a/crates/eth-rlp-verify/src/test_helpers.rs
++++ b/crates/eth-rlp-verify/src/test_helpers.rs
+@@ -1,5 +1,53 @@
+ use eth_rlp_types::BlockHeader;
+ 
++pub fn create_test_block_header_pectra() -> BlockHeader {
++    BlockHeader {
++        block_hash: "0xbfa14ad39de89b0de89a0d9e78efebae792eae93ee46414ed98ee790ce8ed8b3"
++            .to_string(),
++        number: 7839744,
++        gas_limit: 36000000,
++        gas_used: 17786126,
++        nonce: "0x0000000000000000".to_string(),
++        transaction_root: Some(
++            "0x0278307f8545a019516ec439e73404f952436abbdf21d69720a613fef8938d5f".to_string(),
++        ),
++        receipts_root: Some(
++            "0xc7bbdde3e099ede140e4364e3205a16dc68bdd5531af1596789537bbd2ff1041".to_string(),
++        ),
++        state_root: Some(
++            "0x724617b7999d13469c068ced397d3d37a1432a8db7f156ed81d8f78c0a61a7f2".to_string(),
++        ),
++        base_fee_per_gas: Some("0x120c4011".to_string()),
++        parent_hash: Some(
++            "0x53df8defa12fa604f56a0b490e45f8eaebb12c3a9aed12bc52d405600e606338".to_string(),
++        ),
++        miner: Some("0x3826539cbd8d68dcf119e80b994557b4278cec9f".to_string()),
++        logs_bloom: Some("0x0291928e4009a0159203220927940094062800a00c093a669298e00dc5bf42022a50500200334a06000029401634803691d407868254f8847c00d08d4c6604842c62588e4b106309407022cad848de348041474480540286130a080291b202110f100c409204120804a022800220084183500d004168061146246012215836041aee02124e300d3060ed400b99052084a0c0a18b886802082ca0509c4482001c028a788efd0480a9d27a105940000c5900cc8601a2031380855453c46f79128388548f0224603490610a80310087430a08946c84e00d00304409910211a071210550352d0c082800c5361f8628b9a6c3c2b275304c70834200da43181a486021".to_string()),
++        difficulty: Some("0x0".to_string()),
++        totaldifficulty: Some("0xd8fb2...".to_string()),
++        sha3_uncles: Some(
++            "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347".to_string(),
++        ),
++        timestamp: Some("0x67c8a89c".to_string()),
++        extra_data: Some("0x".to_string()),
++        mix_hash: Some(
++            "0x31d5334ad1f9e04153891a4697863a1c9e80f37c66d1d421923c07184c45b4d5".to_string(),
++        ),
++        ommers_hash: Some(
++            "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347".to_string(),
++        ),
++        withdrawals_root: Some(
++            "0x707609a48eb417ad00247824863dcae7437a4ae780719e77a1d6788f05c1a3b8".to_string(),
++        ),
++        blob_gas_used: Some("0xe0000".to_string()),
++        excess_blob_gas: Some("0x60000".to_string()),
++        parent_beacon_block_root: Some(
++            "0x4f5861bbeae03efc716a3b9cfaf4473aca4048e489a9b77102edb2117c4b8217".to_string(),
++        ),
++        request_hash: Some("0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855".to_string()),
++    }
++}
++
+ pub fn create_test_block_header_shapella() -> BlockHeader {
+     BlockHeader {
+         block_hash: "0xb49fa930183f0fa8ca46244e946a635637b90c374d845e9c68dd7fd66cb6e0a1"
+@@ -44,6 +92,7 @@ pub fn create_test_block_header_shapella() -> BlockHeader {
+         parent_beacon_block_root: Some(
+             "0x2b5b8c2d329148bc5d724cac0a7abc557f93471c24ea027b119ecedb937c0045".to_string(),
+         ),
++        request_hash: None,
+     }
+ }
+ 
+@@ -90,6 +139,7 @@ pub fn create_test_block_header_paris() -> BlockHeader {
+         blob_gas_used: None,
+         excess_blob_gas: None,
+         parent_beacon_block_root: None,
++        request_hash: None,
+     }
+ }
+ 
+@@ -118,6 +168,7 @@ pub fn create_test_block_header_london() -> BlockHeader {
+         blob_gas_used: None,
+         excess_blob_gas: None,
+         parent_beacon_block_root: None,
++        request_hash: None,
+     }
+ }
+ 
+@@ -164,6 +215,7 @@ pub fn create_test_block_header_cancun_sepolia() -> BlockHeader {
+         parent_beacon_block_root: Some(
+             "0x6e975ee5654a4312c7ea1428cae73b45bff6c26f7899d6bbadcd3d6c3b583bbd".to_string(),
+         ),
++        request_hash: None,
+     }
+ }
+ 
+@@ -210,5 +262,6 @@ pub fn create_test_block_header_cancun() -> BlockHeader {
+         parent_beacon_block_root: Some(
+             "0x49c85e7f2d121cc6f8f55e1265785690e63e0769285c2cfc47112a1406631e47".to_string(),
+         ),
++        request_hash: None,
+     }
+ }

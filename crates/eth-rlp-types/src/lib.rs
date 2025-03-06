@@ -60,6 +60,7 @@ pub struct BlockHeader {
     pub blob_gas_used: Option<String>,    // character varying(78)
     pub excess_blob_gas: Option<String>,  // character varying(78)
     pub parent_beacon_block_root: Option<String>, // character varying(66)
+    pub request_hash: Option<String>,     // character varying(66)
 }
 
 /// A trait that defines common behaviors for Ethereum block headers, including RLP encoding and hash computation.

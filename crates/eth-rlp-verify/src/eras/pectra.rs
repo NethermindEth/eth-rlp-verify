@@ -33,7 +33,7 @@ use tracing::error;
 /// - `blob_gas_used`: The gas used for blob-related transactions (new in Dencun).
 /// - `excess_blob_gas`: The excess blob gas in the block, used to manage blob-related transaction fees (new in Dencun).
 #[derive(Debug, PartialEq)]
-pub struct BlockHeaderDencun {
+pub struct BlockHeaderPectra {
     pub parent_hash: H256,
     pub ommers_hash: H256,
     pub beneficiary: H160,
@@ -51,12 +51,13 @@ pub struct BlockHeaderDencun {
     pub nonce: [u8; 8],
     pub base_fee_per_gas: U256,
     pub withdrawals_root: H256,
-    pub parent_beacon_block_root: H256, // New in Dencun
-    pub blob_gas_used: U256,            // New in Dencun
-    pub excess_blob_gas: U256,          // New in Dencun
+    pub parent_beacon_block_root: H256,
+    pub blob_gas_used: U256,
+    pub excess_blob_gas: U256,
+    pub request_hash: H256, // New in Pectra
 }
 
-impl BlockHeaderDencun {
+impl BlockHeaderPectra {
     /// Converts a `VerifiableBlockHeader` from the database into a `BlockHeaderDencun`.
     ///
     /// This method takes a block header from the database, parses its fields, and converts it
@@ -77,7 +78,7 @@ impl BlockHeaderDencun {
         );
         let nonce = <Self as BlockHeaderTrait>::hex_to_fixed_array::<8>("0x0000000000000000");
 
-        BlockHeaderDencun {
+        BlockHeaderPectra {
             parent_hash: H256::from_str(&db_header.parent_hash.unwrap_or_default()).unwrap(),
             ommers_hash: H256::from_str(&db_header.sha3_uncles.unwrap_or_default()).unwrap(),
             beneficiary: H160::from_str(&db_header.miner.unwrap_or_default()).unwrap(),
@@ -99,16 +100,18 @@ impl BlockHeaderDencun {
                 .unwrap(),
             withdrawals_root: H256::from_str(&db_header.withdrawals_root.unwrap_or_default())
                 .unwrap_or_default(),
-            parent_beacon_block_root: H256::from_str(
-                &db_header.parent_beacon_block_root.unwrap_or_default(),
-            )
-            .unwrap_or_default(),
             blob_gas_used: U256::from_str(&db_header.blob_gas_used.unwrap_or_default())
                 .unwrap_or_default(),
             excess_blob_gas: U256::from_str(
                 &db_header.excess_blob_gas.unwrap_or("0x0".to_string()),
             )
             .unwrap_or_default(),
+            parent_beacon_block_root: H256::from_str(
+                &db_header.parent_beacon_block_root.unwrap_or_default(),
+            )
+            .unwrap_or_default(),
+            request_hash: H256::from_str(&db_header.request_hash.unwrap_or_default())
+                .unwrap_or_default(),
         }
     }
 
@@ -141,7 +144,7 @@ impl BlockHeaderDencun {
             blob_gas_used: Some(self.blob_gas_used.to_string()),
             excess_blob_gas: Some(self.excess_blob_gas.to_string()),
             sha3_uncles: None, // Not applicable for Dencun.
-            request_hash: None,
+            request_hash: Some(self.request_hash.to_string()),
         }
     }
 }
@@ -151,7 +154,7 @@ impl BlockHeaderDencun {
 /// This implementation provides RLP encoding for the Dencun block header, which is necessary for
 /// compact serialization and for verifying blocks on the Ethereum network. This trait enables
 /// serialization and hash verification, critical for validating blocks.
-impl BlockHeaderTrait for BlockHeaderDencun {
+impl BlockHeaderTrait for BlockHeaderPectra {
     /// RLP encodes the Dencun block header, returning a vector of bytes.
     ///
     /// This method serializes all 20 fields of the Dencun block header using Ethereum's
@@ -162,7 +165,7 @@ impl BlockHeaderTrait for BlockHeaderDencun {
     ///
     /// A `Vec<u8>` containing the RLP-encoded block header data.
     fn rlp_encode(&self) -> Vec<u8> {
-        let mut stream = RlpStream::new_list(20); // 20 fields in Dencun block header
+        let mut stream = RlpStream::new_list(21); // 21 fields in Pectra block header
         stream.append(&self.parent_hash);
         stream.append(&self.ommers_hash);
         stream.append(&self.beneficiary);
@@ -183,6 +186,7 @@ impl BlockHeaderTrait for BlockHeaderDencun {
         stream.append(&self.blob_gas_used);
         stream.append(&self.excess_blob_gas);
         stream.append(&self.parent_beacon_block_root);
+        stream.append(&self.request_hash);
         stream.out().to_vec()
     }
 
@@ -195,7 +199,7 @@ impl BlockHeaderTrait for BlockHeaderDencun {
     /// - A `Result<Self>` containing the decoded block header or an error if decoding fails.
     fn rlp_decode(data: &[u8]) -> Result<Self> {
         let rlp = Rlp::new(data);
-        Ok(BlockHeaderDencun {
+        Ok(BlockHeaderPectra {
             parent_hash: rlp.val_at(0)?,
             ommers_hash: rlp.val_at(1)?,
             beneficiary: rlp.val_at(2)?,
@@ -222,6 +226,7 @@ impl BlockHeaderTrait for BlockHeaderDencun {
             blob_gas_used: rlp.val_at(17)?,
             excess_blob_gas: rlp.val_at(18)?,
             parent_beacon_block_root: rlp.val_at(19)?,
+            request_hash: rlp.val_at(20)?,
         })
     }
 }
@@ -241,10 +246,10 @@ impl BlockHeaderTrait for BlockHeaderDencun {
 /// # Returns
 ///
 /// A boolean indicating whether the computed block hash matches the provided block hash.
-pub fn verify_hash_dencun(block_hash: String, db_header: VerifiableBlockHeader) -> bool {
+pub fn verify_hash_pectra(block_hash: String, db_header: VerifiableBlockHeader) -> bool {
     // Store the block number before moving db_header
     let block_number = db_header.number;
-    let header = BlockHeaderDencun::from_db_header(db_header.clone());
+    let header = BlockHeaderPectra::from_db_header(db_header.clone());
 
     // Compute the block hash
     let computed_block_hash = header.compute_hash();
@@ -269,8 +274,8 @@ mod tests {
     // use crate::block_header::BlockHeader as VerifiableBlockHeader;
     // use rlp::RlpStream;
 
-    fn mock_block_header_dencun() -> BlockHeaderDencun {
-        BlockHeaderDencun {
+    fn mock_block_header_pectra() -> BlockHeaderPectra {
+        BlockHeaderPectra {
             parent_hash: H256::zero(),
             ommers_hash: H256::zero(),
             beneficiary: H160::zero(),
@@ -291,14 +296,15 @@ mod tests {
             parent_beacon_block_root: H256::zero(),
             blob_gas_used: U256::zero(),
             excess_blob_gas: U256::zero(),
+            request_hash: H256::zero(),
         }
     }
 
     #[test]
-    fn test_encode_decode_dencun() {
-        let header = mock_block_header_dencun();
+    fn test_encode_decode_pectra() {
+        let header = mock_block_header_pectra();
         let encoded = header.rlp_encode();
-        let decoded = BlockHeaderDencun::rlp_decode(&encoded).unwrap();
+        let decoded = BlockHeaderPectra::rlp_decode(&encoded).unwrap();
         assert_eq!(header, decoded);
     }
 }

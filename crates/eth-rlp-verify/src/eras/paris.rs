@@ -3,7 +3,7 @@ use ethereum_types::{H160, H256, U256};
 use eyre::Result;
 use rlp::{Rlp, RlpStream};
 use std::str::FromStr;
-
+use tracing::error;
 /// Represents an Ethereum block header for the Paris upgrade.
 ///
 /// The Paris upgrade marks Ethereum's transition from proof-of-work (PoW) to proof-of-stake (PoS),
@@ -120,6 +120,7 @@ impl BlockHeaderParis {
             excess_blob_gas: None,
             parent_beacon_block_root: None,
             sha3_uncles: None,
+            request_hash: None,
         }
     }
 }
@@ -203,13 +204,25 @@ impl BlockHeaderTrait for BlockHeaderParis {
 ///
 /// A boolean indicating whether the computed block hash matches the provided hash.
 pub fn verify_hash_paris(block_hash: String, db_header: VerifiableBlockHeader) -> bool {
+    // Store the block number before moving db_header
+    let block_number = db_header.number;
     let header = BlockHeaderParis::from_db_header(db_header);
 
     // Compute the block hash
     let computed_block_hash = header.compute_hash();
+    let expected_hash = H256::from_str(&block_hash).unwrap();
 
     // Check if the computed hash matches the given block hash
-    computed_block_hash == H256::from_str(&block_hash).unwrap()
+    let matches = computed_block_hash == expected_hash;
+
+    if !matches {
+        error!(
+            "Hash verification failed for Paris block: expected {}, computed {}, block number {}",
+            expected_hash, computed_block_hash, block_number
+        );
+    }
+
+    matches
 }
 
 #[cfg(test)]
